@@ -1,0 +1,80 @@
+module game_controller (
+    // fimcdemental IO
+    input   clk,
+    input   rst_n,
+
+    // general IO
+
+    output  o_cal_frame
+
+
+    // collision IO
+    output  o_collision_game_start,
+    //output  o_collision_cal_frame,
+    input   i_collision_life_loss,
+
+    // Gamepad IO
+    input   i_gamepad_positionX,
+    input   i_gamepad_shootball,  // downword motion
+    input   i_gamepad_usegadget,  // upward motion
+
+
+    // platform IO
+    output  o_platform_initial_grab,
+    output  o_platform_positionX,
+
+
+    // ball IO
+    output  o_ball_shoot,
+    //output  o_ball_cal_frame,
+
+    // gadget IO
+    output  o_gadget_reset,
+    //output  o_gadget_cal_frame,
+
+
+    // brick IO
+    output  o_brick_game_start,
+    input   i_brick_next_stage,//???????????
+    output  o_brick_player_dead,
+
+
+
+
+    // life IO
+    output  i_life_game_start,
+    input   i_life_player_dead,
+
+
+    // score IO
+    output  o_score_life_loss,
+
+    // Disp Ctrl IO
+    output  o_disp_ctrl_endgame,
+    output  o_disp_ctrl_startgame,
+    output  o_disp_ctrl_ack,
+    input   i_disp_ctrl_req,
+    
+);
+localparam  START   = 3'd0;
+localparam  GAME    = 3'd1;
+localparam  END     = 3'd2;
+
+
+// Internal Reg
+    logic           shootball_reg, n_shootball_reg;
+    logic           usegadget_reg, n_usegadget_reg;
+    logic   [2:0]   state, n_state;
+
+// collision IO
+    logic   collision_game_start,   n_collision_game_start;
+
+
+
+    always_comb begin
+        n_shootball_reg =   shootball_reg;
+        n_usegadget_reg =   usegadget_reg;
+        
+    end
+    
+endmodule

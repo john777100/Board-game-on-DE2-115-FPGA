@@ -1,0 +1,118 @@
+`include "../define.sv"
+
+module gadget(
+    input     clk,
+    input     rst_n,
+    input      [`PIXELX_BIT_CNT-1:0]    DrawX,
+    input      [`PIXELY_BIT_CNT-1:0]    DrawY,
+    input      [`PIXELX_BIT_CNT-1:0]    i_br_ballX,
+    input      [`PIXELY_BIT_CNT-1:0]    i_br_ballY,
+    input      [`BALL_SIZE_BIT_CNT-1:0]i_br_ball_size,
+    output                               o_br_gadget_gen,
+
+    output                               o_gadget_ack,
+    output   logic  [3:0]                     is_gadget, //0 is no gadget, else number = gadget type
+    input     logic                         i_gadget_req,
+);
+
+logic [3:0] org_mem [0:399]; //the original map that should not be edit after initial
+logic [3:0] mem [0:399];
+logic [3:0] mem_next [0:399];
+
+logic start; // game start, restart, load orginal map
+
+int x_num, y_num,mem_num;
+int ball_left_up_x, ball_righ_up_x, ball_left_dw_x, ball_righ_dw_x;
+int ball_left_up_y, ball_righ_up_y, ball_left_dw_y, ball_righ_dw_y;
+int mem_left_up, mem_righ_up, mem_left_dw, mem_righ_dw;
+
+logic ack,ack_next;
+logic request;
+
+assign o_gadget_ack = ack;
+
+initial begin
+	$readmemh("gadget.dat", org_mem);
+end
+
+
+
+
+//Turn ball position into gadget-coordinate
+assign ball_left_up_x = (i_br_ballX - i_br_ball_size) >> 5;
+assign ball_left_up_y = (i_br_ballY - i_br_ball_size) >> 4;
+assign ball_righ_up_x = (i_br_ballX + i_br_ball_size) >> 5;
+assign ball_righ_up_y = (i_br_ballY - i_br_ball_size) >> 4;
+assign ball_left_dw_x = (i_br_ballX - i_br_ball_size) >> 5;
+assign ball_left_dw_y = (i_br_ballY + i_br_ball_size) >> 4;
+assign ball_righ_dw_x = (i_br_ballX + i_br_ball_size) >> 5;
+assign ball_righ_dw_y = (i_br_ballY + i_br_ball_size) >> 4;
+
+assign mem_left_up = ball_left_up_x + ball_left_up_y * 20;
+assign mem_righ_up = ball_righ_up_x + ball_righ_up_y * 20;
+assign mem_left_dw = ball_left_dw_x + ball_left_dw_y * 20;
+assign mem_righ_dw = ball_righ_dw_x + ball_righ_dw_y * 20;
+
+always_comb //collision detection
+begin
+
+  if(i_gadget_req == 1'b1 && ack == 1'b0 ) ack_next = 1'b1;
+  else ack_next = 1'b0;
+
+  mem_next = mem;
+
+
+  if(i_gadget_req == 1'b1 && ack == 1'b0)
+  begin
+    if(mem[mem_left_up] > 2'd0 && mem_left_up < 400)
+    begin
+      mem_next[mem_left_up] = 0;//collision, gadget gone
+
+    end
+    else mem_next[mem_left_up] = mem[mem_left_up];
+    if(mem[mem_righ_up] > 2'd0 && mem_righ_up < 400)
+      begin
+        mem_next[mem_righ_up] = 0;//collision, gadget gone
+
+      end 
+    else mem_next[mem_righ_up] = mem[mem_righ_up];
+    if(mem[mem_left_dw] > 2'd0 && mem_left_dw < 400)
+      begin
+        mem_next[mem_left_dw] = 0;//collision, gadget gone
+
+      end 
+    else mem_next[mem_left_dw] = mem[mem_left_dw];
+    if(mem[mem_righ_dw] > 2'd0 && mem_righ_dw < 400)
+      begin
+        mem_next[mem_righ_dw] = 0;//collision, gadget gone
+
+      end 
+    else mem_next[mem_righ_dw] = mem[mem_righ_dw];
+   
+  end 
+end
+
+always_comb //check gadget, is the VGA reading a gadget?
+begin
+    x_num = DrawX >> 5; //transform real coordinate into gadget coordinate
+    y_num = DrawY >> 4;
+    mem_num = y_num * 20 + x_num;
+  if(mem[mem_num] > 2'd0 && DrawY < 9'd320 && x_num != 0 && x_num != 19)is_gadget = mem[mem_num];
+  else is_gadget = 0;
+end
+
+always_ff @(posedge clk or negedge rst_n)
+begin
+  if(!rst_n)
+    begin
+      mem <= org_mem; // game reset
+      ack <= 1'b0;
+    end
+  else
+    begin
+      mem <= mem_next;
+      ack <= ack_next;
+    end
+end
+
+endmodule

@@ -1,0 +1,48 @@
+module  ball_pos
+(
+        input logic clk, //25MHz
+        input logic rst_n,
+		output logic [9:0] ballX,
+        output logic [8:0] ballY
+);
+
+logic [9:0] ballX_next;
+logic [8:0] ballY_next;
+logic [17:0] counter,counter_next;
+logic revX,revX_next;
+
+always@(posedge clk, negedge rst_n) begin
+    if(!rst_n)begin
+        ballX <= 0;
+        ballY <= 0;
+        counter <= 0;
+        revX  <= 0;
+    end
+    else begin
+        ballX <= ballX_next;
+        ballY <= ballY_next;
+        counter <= counter_next;
+        revX <= revX_next;
+    end
+end
+
+always_comb begin
+    counter_next = counter + 1;
+    ballY_next = 9'd320;
+    if(counter == 18'd0)begin
+        if(!revX) begin
+            ballX_next = ballX + 10'd1;
+            if(ballX == 10'd630) revX_next = 1;
+            else revX_next = 0;
+        end
+        else begin
+            ballX_next = ballX - 10'd1;
+            if(ballX == 10'd10) revX_next = 0;
+            else revX_next = 1;
+        end  
+    end
+    else begin
+        ballX_next = ballX;
+        revX_next = revX;
+    end
+end

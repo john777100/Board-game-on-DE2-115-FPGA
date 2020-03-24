@@ -1,0 +1,163 @@
+//-------------------------------------------------------------------------
+//    Color_Mapper.sv                                                    --
+//    Stephen Kempf                                                      --
+//    3-1-06                                                             --
+//                                                                       --
+//    Modified by David Kesler  07-16-2008                               --
+//    Translated by Joe Meng    07-07-2013                               --
+//    Modified by Po-Han Huang  10-06-2017                               --
+//                                                                       --
+//    Fall 2017 Distribution                                             --
+//                                                                       --
+//    For use with ECE 385 Lab 8                                         --
+//    University of Illinois ECE Department                              --
+//-------------------------------------------------------------------------
+
+// color_mapper: Decide which color to be output to VGA for each pixel.
+module  color_mapper ( 
+                       input        [10:0] DrawX, DrawY,
+                       output logic [7:0] VGA_R, VGA_G, VGA_B // VGA RGB output
+                     );
+    
+    logic [7:0] Red, Green, Blue;
+    
+    // Output colors to VGA
+    assign VGA_R = Red;
+    assign VGA_G = Green;
+    assign VGA_B = Blue;
+	 logic[3:0] back_Out;
+	 logic[3:0] duck_Out;
+	 logic[3:0] duck_Out2;
+	 logic[3:0] scope_Out;
+	 logic[3:0] grass_Out;
+	 logic[3:0] lives_Out;
+	 logic[3:0] gameover_Out;
+	 logic[3:0] start_Out;
+	 logic[3:0] score_1_Out;
+	 logic[3:0] score_10_Out;
+	 logic[3:0] home_Out;
+	 logic[3:0] sponge_Out;
+	 //X 640  Y 480
+	 int DistLivesX, DistLivesY , DistScoreX_1, DistScoreX_10, DistScoreY ,DistHomeX, DistHomeY;
+    assign DistLivesX = DrawX - 20; // boundary
+    assign DistLivesY = DrawY - 430; //
+	assign DistScoreX_1 = DrawX - 590;
+	assign DistScoreX_10 = DrawX - 565;
+	assign DistScoreY = DrawY - 430;
+	assign DistHomeX = DrawX - 400;
+	assign DistHomeY = DrawY - 430;
+
+spongeROM sponge(
+	.read_address(DrawX + DrawY*50),
+	.data_Out(sponge_Out)
+);
+
+/*
+frameROM frame(
+		//.read_address(DrawX+{DrawY[9:0],9'b0}*5/4),
+		.read_address(int'(DrawX/2)+int'(DrawY/2)*320),
+		.data_Out(back_Out)
+);
+
+grassROM grass(
+		.read_address(int'(DrawX/2)+int'(DrawY/2)*320),
+		.data_Out(grass_Out)
+);
+
+duckROM theDuck(
+		.read_address(Duck_Draw_X + Duck_Draw_Y*80),
+		.data_Out(duck_Out)
+);
+
+duckROM theDuck2(
+		.read_address(Duck_Draw_X2 + Duck_Draw_Y2*80),
+		.data_Out(duck_Out2)
+);
+
+scopeROM thescope(
+		.read_address(scope_Draw_X + scope_Draw_Y*64),
+		.data_Out(scope_Out)
+);
+
+livesROM thelives(
+		.read_address((DistLivesX) + (DistLivesY)*40),
+		.data_Out(lives_Out)
+);
+
+numberROM thenumbers1(
+		.now_score(is_score_1),
+		.read_address((DistScoreX_1) + (DistScoreY)*40),
+		.data_Out(score_1_Out)
+);
+
+numberROM thenumbers10(
+		.now_score(is_score_10),
+		.read_address((DistScoreX_10) + (DistScoreY)*40),
+		.data_Out(score_10_Out)
+);
+
+gameoverROM thegameover(
+		.read_address(int'(DrawX/2)+int'(DrawY)*320),
+		.data_Out(gameover_Out)
+);
+
+startROM thestart(
+		.read_address(int'(DrawX/2)+int'(DrawY/2)*320),
+		.data_Out(start_Out)
+);
+
+homeROM thehome(
+		
+		.read_address((DistHomeX) + (DistScoreY)*40),
+		.data_Out(home_Out)
+);
+*/
+    
+    // Assign color based on is_scope signal
+    always_comb
+    begin
+		if (DrawX < 11'd50) begin
+            unique case(sponge_Out)
+					
+						4'd1:begin//black
+								  Red = 8'hF9;
+								  Green = 8'hEB;
+								  Blue = 8'h81;
+								 end
+						 4'd2:begin//yellow
+								  Red = 8'h7D;
+								  Green = 8'h36;
+								  Blue = 8'h39;
+								 end
+						4'd3:begin
+								Red = 8'hFF;
+								  Green = 8'hFF;
+								  Blue = 8'hFF;
+						end
+						4'd4:begin
+								Red = 8'h62;
+								  Green = 8'h74;
+								  Blue = 8'h3C;
+						end
+						4'd5:begin
+								Red = 8'h3F;
+								  Green = 8'h51;
+								  Blue = 8'h2C;
+						end
+						4'd6:begin
+								Red = 8'h23;
+								  Green = 8'h1F;
+								  Blue = 8'h20;
+						end
+						4'd7:begin
+								Red = 8'hC1;
+								  Green = 8'h81;
+								  Blue = 8'h2E;
+						end
+			
+						 
+					endcase
+		end
+    end 
+    
+endmodule

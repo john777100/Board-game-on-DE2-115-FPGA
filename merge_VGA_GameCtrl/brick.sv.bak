@@ -1,0 +1,43 @@
+`include "define.sv"
+
+module brick(
+    input      [`PIXELX_BIT_CNT-1:0]    DrawX,
+    input      [`PIXELY_BIT_CNT-1:0]    DrawY,
+    input      [`PIXELX_BIT_CNT-1:0]    o_br_ballX,
+    input      [`PIXELY_BIT_CNT-1:0]    o_br_ballY,
+    input      [`BALL_SIZE_BIT_CNT-1:0]o_br_ball_size,
+    input      [1:0]                   o_br_speedX, // 2 bit 00 == 0, 11 == -1, 01 == 1
+    input      [1:0]                   o_br_speedY,
+    input      [1:0]                   o_br_damage,
+    output                               i_br_gadget_gen,
+    output                               i_ball_brick_collision,
+    output       [`DIR_BIT_CNT-1:0]      i_direc_var,
+
+    output                               i_brick_ack,
+    output   logic                       is_brick,
+    input                              o_brick_req
+);
+
+
+
+logic [1:0] mem [0:399];
+logic [1:0] pixel;
+int x_num, y_num,mem_num;
+
+assign x_num = DrawX << 5;
+assign y_num = DrawY << 4;
+assign mem_num = y_num * 20 + x_num;
+
+initial begin
+	$readmemh("brick.dat", mem);
+end
+
+always_comb //check brick
+begin
+  if(mem[mem_num])is_brick = 1;
+  else is_brick = 0;
+end
+
+
+
+endmodule

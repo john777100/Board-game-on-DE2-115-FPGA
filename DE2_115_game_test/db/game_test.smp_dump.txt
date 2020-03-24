@@ -1,0 +1,20 @@
+
+State Machine - |DE2_115|ball:ball0|state
+Name state.STANDBY state.FRAME_TERM state.CAL_FOR_REQ 
+state.STANDBY 0 0 0 
+state.CAL_FOR_REQ 1 0 1 
+state.FRAME_TERM 1 1 0 
+
+State Machine - |DE2_115|collision:col0|state
+Name state.BAD_STATE state.BALL_PLAT state.BALL_MAP state.BALL_BRICK state.BALL_LOAD state.GADGET_PLAT state.GADGET_MAP state.GADGET_LOAD state.PLAT_LOAD state.INIT state.STANDBY 
+state.STANDBY 0 0 0 0 0 0 0 0 0 0 0 
+state.INIT 0 0 0 0 0 0 0 0 0 1 1 
+state.PLAT_LOAD 0 0 0 0 0 0 0 0 1 0 1 
+state.GADGET_LOAD 0 0 0 0 0 0 0 1 0 0 1 
+state.GADGET_MAP 0 0 0 0 0 0 1 0 0 0 1 
+state.GADGET_PLAT 0 0 0 0 0 1 0 0 0 0 1 
+state.BALL_LOAD 0 0 0 0 1 0 0 0 0 0 1 
+state.BALL_BRICK 0 0 0 1 0 0 0 0 0 0 1 
+state.BALL_MAP 0 0 1 0 0 0 0 0 0 0 1 
+state.BALL_PLAT 0 1 0 0 0 0 0 0 0 0 1 
+state.BAD_STATE 1 0 0 0 0 0 0 0 0 0 1 

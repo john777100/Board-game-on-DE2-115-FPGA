@@ -1,0 +1,65 @@
+module  platformROM
+(		
+		input clk,
+		input rst_n,
+		input logic [18:0] read_address,
+		input [7:0] platform_size,
+		output logic [3:0] data_Out
+);
+
+// mem has width of 3 bits and a total of 400 addresses
+logic [3:0] mem256 [0:4095]; //size = 128
+logic [3:0] mem128 [0:2047]; //size = 64
+logic [3:0] mem64  [0:1023];
+logic [3:0] mem64_0  [0:1023];
+logic [3:0] mem64_1  [0:1023];
+logic [3:0] mem64_2  [0:1023];
+logic [3:0] mem64_3  [0:1023];
+logic [19:0] counter, counter_next;
+
+initial
+begin
+	 $readmemh("sprite_bytes/platform.txt", mem256);
+	 $readmemh("sprite_bytes/platform_128.txt", mem128);
+	 $readmemh("sprite_bytes/platform_64.txt", mem64);
+	 $readmemh("sprite_bytes/plat64_0.txt", mem64_0);
+	 $readmemh("sprite_bytes/plat64_1.txt", mem64_1);
+	 $readmemh("sprite_bytes/plat64_2.txt", mem64_2);
+	 $readmemh("sprite_bytes/plat64_0.txt", mem64_3);
+end
+
+
+always_comb
+ begin
+	counter_next = counter + 1;
+	case(platform_size)
+		8'd128:
+		begin
+			data_Out = mem256[read_address];
+		end
+		8'd64:
+		begin
+			data_Out = mem128[read_address];
+		end
+		8'd32:
+		begin
+			if(counter < 20'd262144) data_Out = mem64_0[read_address];
+			else if(counter < 20'd524288) data_Out = mem64_1[read_address];
+			else if(counter < 20'd786432) data_Out = mem64_2[read_address];
+			else data_Out = mem64_3[read_address];
+		end
+	endcase
+end
+
+always_ff
+begin
+	if(!rst_n)
+	begin
+		counter <= 0;
+	end
+	else
+	begin
+		counter <= counter_next;
+	end
+end
+endmodule
